@@ -1,2 +1,281 @@
-# nordvik-portfolio-case
-This repository contains the full quantitative implementation of a sovereign pension fund portfolio‑construction case study. Submitted for a Portfolio Management module taught by professor S.S., it demonstrates an end‑to‑end institutional process from IPS design to backtested performance using live or synthetic data.
+# Nordvik National Pension Reserve Fund
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/License-MIT-navy" alt="MIT License">
+  <img src="https://img.shields.io/badge/Version-0.5.1-blue" alt="Version">
+</p>
+
+## Portfolio Choice Case Study - 2026 - Project by Farid BOULOS
+
+> **Case Study 2 | EUR 2.8 Billion Sovereign Pension Reserve**  
+> Strategic Asset Allocation · Factor Analysis · 10-Year Glide Path · ESG Framework
+
+---
+
+## Overview
+
+This repository contains the complete quantitative implementation for a sovereign pension fund portfolio construction case study. It was submitted as coursework for a **Portfolio Management** module and demonstrates an end-to-end institutional investment process: from Investor Policy Statement through to backtested performance analysis, with live-market data preferred whenever available (and synthetic data otherwise).
+
+**Three portfolios are constructed and compared:**
+
+| Portfolio | Description | Instruments |
+|-----------|-------------|-------------|
+| **P1 · Benchmark** | 60 % Global Equity / 40 % Bonds, fixed-mix | ACWI + BND |
+| **P2 · US Factor Equity** | Momentum + Quality tilt, fixed-mix | MTUM + QUAL |
+| **P3 · Global Multi-Asset** | 14-asset SAA with 10-year de-risking glide path | Full universe |
+
+**Analytical deliverables include:**
+
+- ~22-page **Investor Policy Statement** (`.docx`) with embedded charts and tables
+- **Fama-French 6-factor regression** on Portfolio 2
+- **Mean-variance efficient frontier** overlaid with portfolio positions
+- **Annual return attribution** by asset bucket (Equity / Fixed Income / Alternatives / Cash)
+- **CVaR (Expected Shortfall 95%)** alongside standard risk metrics
+- Cross-asset **weekly return correlation matrix**
+- Scenario analysis across **GFC** and **COVID-19** stress periods, plus a rate-shock comparison
+- 13 publication-quality charts · 5 Excel workbooks
+
+---
+
+## Quickstart
+
+```bash
+# 1 clone and enter
+git clone https://github.com/Q-Fin/nordvik-portfolio-case.git
+cd nordvik-portfolio-case
+
+# 2 install dependencies (Python 3.10+)
+pip install -r requirements.txt
+
+# 3 run everything with one command
+python nordvik_analysis.py
+```
+
+All outputs are written to `./output/`. Open `output/Nordvik_NPRF_IPS.docx` in Microsoft Word for the main deliverable.
+
+---
+
+## Step-by-Step
+
+### Prerequisites
+
+- Python **3.10 or later**
+- An internet connection is recommended for live data retrieval. The pipeline attempts live Yahoo Finance, FRED, and Kenneth French downloads first; if any source is slow or unavailable, the analysis keeps the successful live inputs and fills only the missing pieces with the calibrated synthetic dataset.
+- Microsoft Word or LibreOffice Writer to view the `.docx` output
+
+### Installation
+
+```bash
+# Recommended: use a virtual environment
+python -m venv .venv
+source .venv/bin/activate      # macOS / Linux
+.venv\Scripts\activate         # Windows
+
+pip install -r requirements.txt
+```
+
+### Running
+
+```bash
+# Single command
+python nordvik_analysis.py   # tries live Yahoo/FRED/Kenneth French downloads first; fills only missing pieces with synthetic data
+```
+
+Expected runtime: **a few minutes in normal network conditions**; slow vendor responses can extend the live-download phase. The runner prints stage-by-stage progress while it works.
+
+---
+
+## Repository Structure
+
+```
+nordvik-portfolio-case/
+│
+├── performance_assessment.py   ← Core module: portfolio construction + analytics
+│                                  Functions: fix_mix_portfolio_construction,
+│                                             glide_path_weights,
+│                                             changing_weights_portfolio_construction,
+│                                             compute_performance_stats (incl. CVaR),
+│                                             compute_drawdown, compute_ff6_regression,
+│                                             compute_correlation_matrix, scenario_analysis
+│
+├── nordvik_analysis.py         ← Master analysis script
+│                                  · Live Yahoo Finance / FRED / Kenneth French data loader
+│                                  · Calibrated synthetic fallback for missing series only
+│                                  · Portfolio 1, 2, 3 construction
+│                                  · Efficient frontier (scipy.optimize, Markowitz 1952)
+│                                  · Annual return attribution by bucket
+│                                  · FF6 regression · Correlation matrix
+│                                  · Scenario analysis · 13 charts · 5 Excel workbooks
+│
+├── requirements.txt
+├── README.md
+├── .gitignore
+│
+└── output/                     ← Generated by running the scripts (git-ignored)
+    ├── Nordvik_NPRF_IPS.docx
+    ├── Performance_Summary.xlsx  (8 sheets incl. Attribution + Efficient Frontier)
+    ├── Asset_Allocation.xlsx
+    ├── Correlation_Matrix.xlsx
+    ├── FF6_Regression.xlsx
+    ├── Glide_Path_Weights.xlsx
+    └── charts/
+        ├── 01_cumulative_linear.png
+        ├── 02_cumulative_log.png
+        ├── 03_rolling_12m.png
+        ├── 04_drawdown.png
+        ├── 05_p3_weights.png
+        ├── 06_glide_path.png
+        ├── 07_correlation_matrix.png
+        ├── 08_ff6_regression.png
+        ├── 09_scenario_modern.png
+        ├── 10_scenario_gfc.png
+        ├── 11_risk_return.png          ← Efficient Frontier overlay
+        ├── 12_rolling_sharpe.png
+        └── 13_attribution.png          ← Annual return attribution
+```
+
+---
+
+
+## Operational Notes
+
+- The console output is stage-based, so long runs no longer appear frozen while data is downloading or charts are rendering.
+- The IPS and Excel outputs are generated from the same `output/` artifacts, so the Word document should stay synchronized with the analysis tables and charts.
+- The synthetic data engine is intentionally left calibrated and deterministic; live inputs only replace it where they are actually available.
+
+## Data Sources
+
+| Data | Source | Retrieval |
+|------|--------|-----------|
+| ETF adjusted-close prices | **Yahoo Finance** | `yfinance` |
+| 3-month T-Bill rate (cash proxy when live) | **FRED** (series: DTB3) | `pandas-datareader` |
+| Fama-French 6 factors (monthly) | **Kenneth French Data Library** | `pandas-datareader` |
+
+### Offline / restricted-network mode
+
+The scripts **attempt live downloads first**. If one or more feeds cannot be reached (for example in a sandboxed grading environment), the analysis keeps whatever live data it already has and falls back only for the missing series. When a full fallback is required, the calibrated synthetic data engine generates price histories via a regime-switching multivariate GBM tuned to match the intended 2015–2026 market behavior:
+
+| Regime | Period | Key calibration |
+|--------|--------|-----------------|
+| Pre-COVID bull | 2015 – Jan 2020 | US equities ~14 % p.a., EM ~5 % |
+| COVID crash | Feb – Mar 2020 | Equities −34 %, TLT +20 % |
+| Recovery + 2021 bull | Apr 2020 – Dec 2021 | S&P +70 % from trough |
+| Rate-shock bear | Jan – Oct 2022 | Equities −20 %, TLT −24 % |
+| AI bull market | Oct 2022 – Dec 2024 | Momentum/quality +90 % |
+| Moderate expansion | 2025 – present | Gold +28 %, BTC +60 % |
+
+The execution mode is written to `output/run_metadata.json`, echoed in the console, and reflected in the IPS disclaimer.
+
+---
+
+## Methodology Notes
+
+### Portfolio Construction
+
+- **Rebalancing:** quarterly (end of March, June, September, December)
+- **Glide path:** risky-asset allocation reduced by 1 % per year from 70 % (2015) to 60 % (2025+), commencing 2017. Within-group proportions held constant; only the risky / safe split moves.
+- **Crypto proxy:** BTC-USD spot from Yahoo Finance. Live implementation would use IBIT (iShares Bitcoin Trust). Hard cap: 1.5 % of total portfolio.
+- **Cash proxy:** FRED DTB3 (3-month T-bill) converted to a cumulative total-return index when live data are available; the synthetic fallback preserves the same role when offline.
+
+### Risk Metrics
+
+| Metric | Definition |
+|--------|-----------|
+| Ann. Volatility | σ_daily × √252 |
+| Sharpe Ratio | (R_ann − R_f) / σ_ann |
+| Max Drawdown | max(1 − NAV_t / NAV_peak) |
+| **CVaR 95 %** | **−E[r \| r ≤ q₅] × √252** (Expected Shortfall, annualised) |
+| Calmar Ratio | R_ann / \|Max DD\| |
+| Sortino Ratio | (R_ann − R_f) / Downside σ |
+
+### Efficient Frontier
+
+Computed via `scipy.optimize.minimize` (SLSQP) on the P3 asset universe (14 assets). Constraints: long-only (wᵢ ≥ 0), Σwᵢ = 1, wᵢ ≤ 40 % (BTC capped at 5 % in the optimisation). The frontier traces from the Global Minimum Variance portfolio to the 95th-percentile asset return. Uses in-sample (historical) mean and covariance estimates. Parameter uncertainty is acknowledged in the IPS.
+
+### Fama-French 6-Factor Regression
+
+Monthly excess returns of Portfolio 2 regressed on Mkt-RF, SMB, HML, RMW, CMA, WML. HC3 heteroskedasticity-robust standard errors. Factors from Kenneth French Data Library.
+
+### Return Attribution
+
+Daily contribution of each asset = w_{t−1,i} × r_{t,i}. Summed annually per bucket: Equity, Fixed Income, Alternatives, Cash. The residual between bucket sum and total portfolio return represents the rebalancing alpha.
+
+### Correlation Analysis
+
+Weekly close-to-close returns (Friday to Friday). Weekly frequency mitigates the asynchronous-trading bias that inflates daily cross-regional correlations between, e.g., US and Asia-Pacific markets.
+
+---
+
+## IPS Document Highlights
+
+The ~22-page Word document (`Nordvik_NPRF_IPS.docx`) covers:
+
+1. Executive Summary
+2. Fund Overview and Mandate
+3. Investment Objectives and Capital Markets Assumptions
+4. Risk Profile and Quantitative Constraints
+5. Macroeconomic and Capital Markets Outlook *(deep geopolitical and macro views per asset class)*
+6. Strategic Asset Allocation: rationale, bucketing, target weights
+7. Instrument Selection *(per-ETF: AUM, TER, inception, role, ESG status)*
+8. Portfolio Construction and Rebalancing Mechanics
+9. Factor Analysis: Fama-French 6-Factor Framework
+10. 10-Year De-Risking Glide Path
+11. Backtest Results: Performance, Drawdown, Frontier, Attribution, Scenarios
+12. Governance, ESG Compliance, and Performance Monitoring
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `ModuleNotFoundError: performance_assessment` | Run scripts from the repo root directory where `performance_assessment.py` lives |
+| `cannot import name 'docx'` | `pip install python-docx` (not `docx`) |
+| yfinance 403 / empty data | If the Network is restricted, the script automatically falls back to synthetic data |
+| FRED / FF6 download fails | Handled gracefully; the pipeline uses synthetic fills only for the missing series |
+
+---
+
+## Dependencies
+
+```
+yfinance          >= 0.2.40
+pandas            >= 2.0.0
+numpy             >= 1.24.0
+scipy             >= 1.10.0
+statsmodels       >= 0.14.0
+matplotlib        >= 3.7.0
+seaborn           >= 0.12.0
+pandas-datareader >= 0.10.0
+python-docx       >= 1.1.0
+openpyxl          >= 3.1.0
+```
+
+Full pinned list: `requirements.txt`
+
+---
+
+## Academic Honesty
+
+All code, analysis, and written content in this repository was produced for the Portfolio Choice module case study. The backtest uses live market data by default and clearly documented synthetic data only for missing series or full offline fallback. No forward-looking information was used in constructing the backtest. All data sources are cited in the IPS disclaimer section.
+
+---
+
+*Data: Yahoo Finance · FRED (Federal Reserve Bank of St. Louis) · Kenneth R. French Data Library*  
+*Stack: Python 3.x · pandas · numpy · scipy · statsmodels · matplotlib · seaborn · python-docx*
+
+---
+
+## License
+
+**MIT License** — This project is licensed under the MIT License.
+
+---
+
+<p align="center">
+  Developed by <a href="https://github.com/Q-Fin">Q-Fin</a><br><br>
+  <a href="https://github.com/Q-Fin">
+    <img src="https://avatars.githubusercontent.com/u/152863492" width="48" height="48" alt="FinEn" style="border-radius:50%">
+  </a>
+</p>
