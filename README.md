@@ -220,7 +220,7 @@ Weekly close-to-close returns (Friday to Friday). Weekly frequency mitigates the
 
 ## IPS Document Highlights
 
-The ~22-page Word document (`Nordvik_NPRF_IPS.docx`) covers:
+The 29-page Word document (`Nordvik_NPRF_IPS.docx`) covers:
 
 1. Executive Summary
 2. Fund Overview and Mandate
