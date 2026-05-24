@@ -27,14 +27,14 @@ This repository contains the complete quantitative implementation for a sovereig
 
 **Analytical deliverables include:**
 
-- ~22-page **Investor Policy Statement** (`.docx`) with embedded charts and tables
+- 29-page **Investor Policy Statement** (`.docx`) with embedded charts and tables
 - **Fama-French 6-factor regression** on Portfolio 2
 - **Mean-variance efficient frontier** overlaid with portfolio positions
 - **Annual return attribution** by asset bucket (Equity / Fixed Income / Alternatives / Cash)
 - **CVaR (Expected Shortfall 95%)** alongside standard risk metrics
 - Cross-asset **weekly return correlation matrix**
 - Scenario analysis across **GFC** and **COVID-19** stress periods, plus a rate-shock comparison
-- 13 publication-quality charts · 5 Excel workbooks
+- 13 publication-quality charts · 5 Excel workbooks · 6 CSV files
 
 ---
 
